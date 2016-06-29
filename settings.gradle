@@ -1,0 +1,4 @@
+//include ':app', ':mylibrary', ':hotfix'
+include ':mylibrary'
+include ':app'
+include ':hotfix'

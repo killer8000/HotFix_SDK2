@@ -1,0 +1,25 @@
+apply from: rootProject.getRootDir().getAbsolutePath() + "/mylibrary/utils.gradle"
+def initEvn() {
+    printlnx(rootDir.getAbsolutePath())
+    Properties properties = new Properties();
+    File file = new File(rootDir.getAbsolutePath() + "/local.properties");
+    properties.load(file.newDataInputStream());
+}
+def initMinshengGradleEnvironment() {
+    printlnx("初始化start")
+//属性值从 local.properites 中读取
+    Properties properties = new Properties()
+    File propertyFile = new File(rootDir.getAbsolutePath() + "/local.properties")
+    properties.load(propertyFile.newDataInputStream())
+//gradle 就是 gradle 对象。它默认是 Settings 和 Project 的成员变量。可直接获取
+//ext 前缀,表明操作的是外置属性。api 是一个新的属性名。前面说过,只在 //第一次定义或者设置它的时候需要 ext 前缀
+    gradle.ext.api = properties.getProperty('sdk.api')
+    gradle.ext.aapt=properties.getProperty('sdk.aapt')
+    gradle.ext.home=properties.getProperty('sdk.home')
+    gradle.ext.jar=properties.getProperty('jar')
+}
+initMinshengGradleEnvironment()
+//initEvn()
+ext{
+    initEvn=this.&initEvn
+}

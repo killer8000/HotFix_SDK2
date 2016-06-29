@@ -1,0 +1,71 @@
+import groovy.util.slurpersupport.GPathResult
+
+def printlnx(x) {
+    println(x)
+}
+
+def getVesionNameAdvanced() {
+    def xmlFile = new File(rootDir.getAbsolutePath() + "/mylibrary/src/main/AndroidManifest.xml");
+    GPathResult gr = new XmlSlurper().parse(xmlFile);
+
+    return gr.application['@android:allowBackup']
+}
+
+def disableDebugBuild() {
+    def targetTasks = project.tasks.findAll({
+        task -> task.name.contains("Debug")
+    })
+    targetTasks.each {
+        println(it.name)
+        it.setEnabled(false)
+    }
+}
+
+def copyFile(srcPath, desPath) {
+    def File src = file(srcPath)
+    def File des = file(desPath)
+    //文件夹拷贝到文件夹
+    if (src.isDirectory() && des.isDirectory()) {
+        for (File src1 : src.listFiles()) {
+//            def File des1 = file(des.absolutePath + "/" + src1.getName())
+//            des1.createNewFile()
+            if(src1.isDirectory()){
+            copyFile(src1.absolutePath,des)
+            }
+//            des1.withOutputStream {
+//                os ->
+//                    src1.withInputStream {
+//                        is -> os << is
+//                    }
+//            }
+        }
+    }
+    //文件拷贝到文件夹
+    if (src.isFile() && des.isDirectory()) {
+        def des1 = file(des.absolutePath + "/" + src.getName())
+        des1.createNewFile()
+        des1.withOutputStream {
+            os ->
+                src.withInputStream {
+                    is -> os << is
+                }
+        }
+    }
+    //文件拷贝到文件
+    if (src.isFile() && des.isFile()) {
+
+        des.withOutputStream {
+            os ->
+                src.withInputStream {
+                    is -> os << is
+                }
+        }
+    }
+}
+
+ext {
+    getVesionNameAdvanced = this.&getVesionNameAdvanced
+    printlnx = this.&printlnx
+    disableDebugBuild = this.&disableDebugBuild
+    copyFile = this.&copyFile
+}

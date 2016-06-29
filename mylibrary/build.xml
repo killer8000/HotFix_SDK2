@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Create anydoor Jar for host" basedir="." default="package_src_jar">
+    <property name="dir.aapt" value="/Applications/AS/dv/android-sdk/build-tools/23.0.2/aapt" />
+    <property name="dir.android"
+        value="/Applications/AS/dv/android-sdk/platforms/android-23/android.jar" />
+    <property name="src" value="src/main/java" />
+    <property name="build" value="build_new" />
+    <target name="compile_r_to_gen">
+        <echo>${basedir}</echo>
+        <exec executable="${dir.aapt}" failonerror="true">
+            <arg value="package" />
+            <arg value="-f" />
+            <arg value="-m" />
+            <arg value="-J" />
+            <arg value="gen" />
+            <!--m,J,gen表示创建包名的目录和R.java到gen目录下 -->
+            <arg value="-M" />
+            <arg value="${basedir}/src/main/AndroidManifest.xml" />
+            <arg value="-S" />
+            <arg value="${basedir}/src/main/res" />
+            <arg value="-A" />
+            <arg value="${basedir}/src/main/assets" />
+            <arg value="-I" />
+            <arg value="${dir.android}"/>
+            <arg value="-F" />
+            <arg value="gen/mm.jar" />
+        </exec>
+    </target>
+
+    <!-- 编译源代码 -->
+    <target name="compile" depends="compile_r_to_gen" description="compile the source ">
+        <!-- 从src里编译java代码到build里 -->
+        <echo>complie src ......</echo>
+        <javac bootclasspath="${dir.android}" debug="true" destdir="${build}" encoding="utf-8"
+            includeAntRuntime="false" source="1.6" srcdir="${src}">
+            <src path="gen" />
+            <classpath>
+                <fileset dir="libs" includes="*.jar" />
+            </classpath>
+        </javac>
+    </target>
+    <!--将源代码打成jar -->
+    <target name="package_src_jar" depends="compile" description="generate the distribution">
+        <echo>begin package src to jar.......</echo>
+        <jar basedir="${build}" jarfile="out/lib/classes.jar">
+            <!--manifest>
+                <attribute name="Class-Path" value="." />
+            </manifest-->
+        </jar>
+
+    </target>
+</project>

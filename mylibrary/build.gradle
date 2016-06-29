@@ -1,0 +1,142 @@
+apply plugin: 'com.android.library'
+apply plugin:  'com.inject.ndh'
+apply from: rootProject.getRootDir().getAbsolutePath() + "/mylibrary/utils.gradle"
+apply from: rootProject.getRootDir().getAbsolutePath() + "/mylibrary/settings.gradle"
+def basedir = rootDir.getAbsolutePath()
+def resName = "mm.jar"
+def jarName="mylib"
+def sdkVersion=23
+android {
+    compileSdkVersion sdkVersion
+    buildToolsVersion "23.0.2"
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    aaptOptions {}
+    lintOptions {
+        abortOnError false
+    }
+
+}
+injectConfig{
+    //注入成功后 jar包存放位置
+    outputDir "${basedir}/mylibrary/out"
+    //待注入的jar包
+    jarDir "${basedir}/mylibrary/build/libs/mylib.jar"
+    //当前编译环境下的android.jar路径
+    androidHome "/Applications/AS/dv/android-sdk/platforms/android-${sdkVersion}/android.jar"
+}
+
+
+project.afterEvaluate {
+    printlnx("config success")
+}
+tasks.getByName("build")<<{
+    printlnx("build 完成了")
+}
+tasks.getByName("assemble") {
+    dependsOn 'makeJar'
+}
+tasks.getByName("clean") {
+    dependsOn 'cleanLib'
+}
+
+task compileRes() {
+
+    def file = file("${basedir}/mylibrary/gen")
+    if (!file.exists()) {
+        file.mkdir()
+    }
+
+    doLast {
+        exec {
+            commandLine gradle.aapt,
+                    'package',
+                    '-f',
+                    '-m',
+                    '-J',
+                    "${basedir}/mylibrary/gen",
+                    '-M',
+                    "${basedir}/mylibrary/src/main/AndroidManifest.xml",
+                    '-S',
+                    "${basedir}/mylibrary/src/main/res",
+                    '-A',
+                    "${basedir}/mylibrary/src/main/assets",
+                    '-I',
+                    gradle.home,
+                    '-F',
+                    "${basedir}/mylibrary/gen/${resName}"
+        }
+    }
+}
+task cleanLib(type: Delete, dependsOn: 'cleanGen') {
+}
+
+task cleanGen(type: Delete) {
+    delete "${basedir}/mylibrary/gen"
+    doLast {
+        printlnx "create gen"
+        def file = new File("${basedir}/mylibrary/gen")
+        file.mkdir()
+    }
+}
+task compileLib(type: JavaCompile, dependsOn: 'compileRes') {
+    doFirst {
+        def file = new File("${basedir}/mylibrary/build_new")
+        if (!file.exists()) {
+            file.mkdir()
+        }
+    }
+
+    source "${basedir}/mylibrary/src/main/java"
+    source "${basedir}/mylibrary/gen/hotfix"
+    destinationDir = new File("${basedir}/mylibrary/build_new")
+    FileCollection fc = files(new File(gradle.home), file("${basedir}/mylibrary/libs/hotfix.jar"))
+    classpath = fc
+
+}
+task compileJar(type: Jar, dependsOn: 'compileLib') {
+    baseName = "${jarName}"
+    encoding = "utf-8"
+    from "${basedir}/mylibrary/build_new"
+//    into "${basedir}/mylibrary/out"
+}
+
+task copyLibFile(type: Copy, dependsOn: 'compileJar') {
+    copyFile("${basedir}/mylibrary/build/libs/${jarName}.jar", "${basedir}/app/libs")
+}
+task copyResFile(type: Copy, dependsOn: 'copyLibFile') {
+    copyFile("${basedir}/mylibrary/gen/${resName}", "${basedir}/app/src/main/assets")
+}
+task makeJar(dependsOn: 'copyResFile') {
+    doLast {
+        printlnx "SUCESS!"
+    }
+}
+
+task ma<<{
+    printlnx "ssss"
+}
+ma{
+    dependsOn "mb"
+    description="开始打包"
+    group="MA"
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'org.javassist:javassist:3.18.+'
+    compile files('libs/hotfix.jar')
+}
+ant.importBuild("./build.xml")
