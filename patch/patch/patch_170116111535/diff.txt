@@ -1,0 +1,10 @@
+2,3c2,3
+< ./hotfix/pingan/com/mylibrary/ActivityTest$1.class=20d7b29471a59da1372b957c1c9485b3
+< ./hotfix/pingan/com/mylibrary/ActivityTest.class=d00fbeee9fb338cf726c5683843c121a
+---
+> ./hotfix/pingan/com/mylibrary/ActivityTest$1.class=9b04590264100f997bd3aeb4573ecff7
+> ./hotfix/pingan/com/mylibrary/ActivityTest.class=b465166a0f92f7f135ff5cd90e690567
+11c11
+< ./hotfix/pingan/com/mylibrary/ResManager.class=2d64d1b71ad26a4d197ef1e935f81114
+---
+> ./hotfix/pingan/com/mylibrary/ResManager.class=a252319f41203542fa152c45b4a90fd2

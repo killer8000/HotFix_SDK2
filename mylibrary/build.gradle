@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin:  'com.inject.ndh'
+/*
+//自动注入相关
+apply plugin:  'com.inject.ndh'*/
 apply from: rootProject.getRootDir().getAbsolutePath() + "/mylibrary/utils.gradle"
 apply from: rootProject.getRootDir().getAbsolutePath() + "/mylibrary/settings.gradle"
 def basedir = rootDir.getAbsolutePath()
@@ -27,6 +29,8 @@ android {
     }
 
 }
+/*
+//自动注入相关
 injectConfig{
     //注入成功后 jar包存放位置
     outputDir "${basedir}/mylibrary/out"
@@ -34,7 +38,7 @@ injectConfig{
     jarDir "${basedir}/mylibrary/build/libs/mylib.jar"
     //当前编译环境下的android.jar路径
     androidHome "/Applications/AS/dv/android-sdk/platforms/android-${sdkVersion}/android.jar"
-}
+}*/
 
 
 project.afterEvaluate {
@@ -139,4 +143,4 @@ dependencies {
     compile 'org.javassist:javassist:3.18.+'
     compile files('libs/hotfix.jar')
 }
-ant.importBuild("./build.xml")
+//ant.importBuild("./build.xml")
